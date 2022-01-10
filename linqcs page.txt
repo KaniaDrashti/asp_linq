@@ -1,0 +1,99 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+public partial class Default2 : System.Web.UI.Page
+{
+    DataClassesDataContext db = new DataClassesDataContext();
+
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        load_data();
+        if (!IsPostBack)
+        {
+            dlclass.DataSource = from cl in db.classes select cl;
+            dlclass.DataTextField = "class_name";
+            dlclass.DataValueField = "class_name";
+            dlclass.DataBind();
+
+            dlcourse.DataSource = from co in db.courses select co;
+            dlcourse.DataTextField = "course_name";
+            dlcourse.DataValueField = "course_name";
+            dlcourse.DataBind();
+        }
+    }
+        public void load_data()
+       {
+        GridView1.DataSource = from s in db.students select s;
+        GridView1.DataBind();
+       }
+    protected void btn_add_Click(object sender, EventArgs e)
+    {
+        int erno = Convert.ToInt32(enrollno.Text), rno = Convert.ToInt32(rollno.Text);
+        string sname = name.Text, sclass = dlclass.SelectedValue, scourse = dlcourse.SelectedValue, semail = email.Text, smobile = mobile.Text;
+
+        student stud = new student();
+        stud.enrollno = erno;
+        stud.rollno = rno;
+        stud.name = sname;
+        stud.@class = sclass;
+        stud.course = scourse;
+        stud.email = semail;
+        stud.mobile = smobile;
+        stud.dob = Calendar1.SelectedDate.Date;
+
+        db.students.InsertOnSubmit(stud);
+        db.SubmitChanges();
+        load_data();
+
+    }
+
+    protected void btn_update_Click(object sender, EventArgs e)
+    {
+        int erno = Convert.ToInt32(enrollno.Text), rno = Convert.ToInt32(rollno.Text);
+        string sname = name.Text, sclass = dlclass.SelectedValue, scourse = dlcourse.SelectedValue, semail = email.Text, smobile = mobile.Text;
+
+        student studupdate = (from s in db.students where s.enrollno == erno select s).First();
+        studupdate.enrollno = erno;
+        studupdate.rollno = rno;
+        studupdate.name = sname;
+        studupdate.@class = sclass;
+        studupdate.course = scourse;
+        studupdate.email = semail;
+        studupdate.mobile = smobile;
+        studupdate.dob = Calendar1.SelectedDate.Date;
+
+        db.SubmitChanges();
+        load_data();
+
+    }
+
+    protected void del_record_Click(object sender, EventArgs e)
+    {
+        int erno = Convert.ToInt32(enrollno.Text);
+        student studdelete = (from s in db.students where s.enrollno == erno select s).First();
+
+        db.students.DeleteOnSubmit(studdelete);
+        db.SubmitChanges();
+        load_data();
+
+    }
+
+    protected void get_record_Click(object sender, EventArgs e)
+    {
+        int erno = Convert.ToInt32(enrollno.Text);
+        student studget = (from s in db.students where s.enrollno == erno select s).First();
+        rollno.Text = studget.rollno.ToString();
+        name.Text = studget.name.ToString();
+        dlclass.SelectedItem.Value = studget.@class.ToString();
+        dlcourse.SelectedItem.Value = studget.course.ToString();
+        email.Text = studget.email.ToString();
+        mobile.Text = studget.mobile.ToString();
+        Calendar1.SelectedDate = studget.dob.Value;
+
+    }
+}
+
